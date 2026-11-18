@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f9f7f2">
+  <title>{% block title %}CampusGuide AI – Tra cứu quy chế đào tạo{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23283f7a'/%3E%3Ccircle cx='25' cy='25' r='5' fill='%23c4502d'/%3E%3Cpath d='M6 10c3-1 6-1 10 1 4-2 7-2 10-1v13c-3-1-6-1-10 1-4-2-7-2-10-1Z' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:wght@500;600;700&display=swap&subset=vietnamese" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<a href="#main" class="skip">Bỏ qua tới nội dung chính</a>
+<div class="app">
+  <header class="site-header">
+    <div class="hdr">
+      <a class="brand" href="/" aria-label="CampusGuide AI – về trang Hỏi đáp">
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M3 6.5c3-1.2 6-1.2 9 .5 3-1.7 6-1.7 9-.5V19c-3-1.2-6-1.2-9 .5-3-1.7-6-1.7-9-.5Z"/><path d="M12 7v12.5"/></svg><i></i>
+        </span>
+        <span class="nm"><b>CampusGuide <em>AI</em></b><small>Cổng tra cứu quy chế đào tạo</small></span>
+      </a>
+      {% if user %}
+      <nav class="main-nav" aria-label="Điều hướng chính">
+        <ul>
+          <li><a href="/" {% if active == 'chat' %}aria-current="page"{% endif %}><i data-i="messages-square"></i><span class="short">Hỏi đáp</span><span class="long">Hỏi đáp AI</span></a></li>
+          <li><a href="/library" {% if active == 'library' %}aria-current="page"{% endif %}><i data-i="library"></i><span class="short">Thư viện</span><span class="long">Thư viện văn bản</span></a></li>
+          {% if user.can_manage_data %}<li><a href="/admin" {% if active == 'admin' %}aria-current="page"{% endif %}><i data-i="database-zap"></i><span class="short">Dữ liệu</span><span class="long">Quản trị dữ liệu</span></a></li>{% endif %}
+          {% if user.is_admin %}<li><a href="/users" {% if active == 'users' %}aria-current="page"{% endif %}><i data-i="users"></i><span class="short">Tài khoản</span><span class="long">Quản lý tài khoản</span></a></li>{% endif %}
+        </ul>
+      </nav>
+      <div class="health" id="health" title="Trạng thái hệ thống"><span class="dot" id="healthDot"></span><span id="healthText">Đang kiểm tra…</span></div>
+      <div class="usermenu">
+        <button type="button" class="user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu">
+          <span class="av" aria-hidden="true">{{ (user.full_name or user.username)[:1] | upper }}</span><span class="un">{{ user.full_name }}</span><i data-i="chevron-down" data-s="sm"></i>
+        </button>
+        <div class="umenu" id="userMenu" hidden>
+          <div class="who"><b>{{ user.full_name }}</b><small>@{{ user.username }} · {{ 'Quản trị viên' if user.is_admin else ('Người dùng · quản trị dữ liệu' if user.can_manage_data else 'Người dùng') }}</small></div>
+          <button type="button" id="pwOpen"><i data-i="key-round"></i>Đổi mật khẩu</button>
+          <button type="button" id="logoutBtn"><i data-i="log-out"></i>Đăng xuất</button>
+        </div>
+      </div>
+      {% else %}
+      <span style="margin-left:auto"></span>
+      {% endif %}
+    </div>
+  </header>
+  <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
+</div>
+
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<dialog id="confirmDlg">
+  <form method="dialog" class="dbox">
+    <h3 id="confirmTitle">Xác nhận</h3>
+    <p id="confirmMsg"></p>
+    <div class="dlg-actions">
+      <button value="cancel" class="btn">Hủy</button>
+      <button value="ok" class="btn danger" id="confirmOk">Đồng ý</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="pwDlg">
+  <form id="pwForm" class="dbox" autocomplete="off">
+    <h3>Đổi mật khẩu</h3>
+    <div class="field" style="margin-top:14px"><label for="pw_cur">Mật khẩu hiện tại</label><input id="pw_cur" type="password" autocomplete="current-password" required></div>
+    <div class="field" style="margin-top:12px"><label for="pw_new">Mật khẩu mới</label><input id="pw_new" type="password" autocomplete="new-password" minlength="8" required><span class="hint">Tối thiểu 8 ký tự, gồm cả chữ và số.</span></div>
+    <div class="field" style="margin-top:12px"><label for="pw_new2">Nhập lại mật khẩu mới</label><input id="pw_new2" type="password" autocomplete="new-password" required></div>
+    <p class="err" id="pwErr" role="alert" hidden style="margin-top:10px"></p>
+    <div class="dlg-actions"><button type="button" class="btn lg" id="pwCancel">Hủy</button><button type="submit" class="btn primary lg">Đổi mật khẩu</button></div>
+  </form>
+</dialog>
+
+<script>window.CG = { user: {{ user | tojson }}, docTypes: {{ doc_types | tojson }}, validity: {{ validity | tojson }}{% if doc_id is defined %}, docId: {{ doc_id }}{% endif %} };</script>
+<script src="/static/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

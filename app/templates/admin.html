@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Quản trị dữ liệu · CampusGuide AI{% endblock %}
+
+{% macro fields(p) %}
+  <div class="field span2"><label for="{{p}}title">Tên văn bản</label><input id="{{p}}title" name="title" maxlength="300" placeholder="Để trống sẽ lấy theo tên file"></div>
+  <div class="field"><label for="{{p}}doc_type">Loại văn bản <span class="req">*</span></label>
+    <select id="{{p}}doc_type" name="doc_type" required>{% for k, v in doc_types.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="{{p}}number">Số hiệu</label><input id="{{p}}number" name="number" placeholder="1205/QĐ-ĐHVK"></div>
+  <div class="field"><label for="{{p}}issuer">Cơ quan ban hành</label><input id="{{p}}issuer" name="issuer" placeholder="Phòng Đào tạo"></div>
+  <div class="field"><label for="{{p}}validity">Tình trạng hiệu lực</label>
+    <select id="{{p}}validity" name="validity">{% for k, v in validity.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+  <div class="field"><label for="{{p}}issued_date">Ngày ban hành</label><input id="{{p}}issued_date" name="issued_date" type="date"></div>
+  <div class="field"><label for="{{p}}effective_date">Ngày hiệu lực</label><input id="{{p}}effective_date" name="effective_date" type="date"></div>
+  <div class="field span2"><label for="{{p}}replaced_by">Văn bản thay thế / bị thay thế bởi</label><input id="{{p}}replaced_by" name="replaced_by" placeholder="VD: Thay thế Quy chế số 45/QĐ-ĐHVK năm 2022"></div>
+  <div class="field span2"><label for="{{p}}notes">Ghi chú / tóm tắt</label><input id="{{p}}notes" name="notes" placeholder="Hiển thị trên thẻ văn bản ở Thư viện"></div>
+{% endmacro %}
+
+{% block content %}
+<div class="wrap wide page-in">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Quản trị dữ liệu</p>
+      <h1>Tải lên và lập chỉ mục văn bản</h1>
+      <p class="d">Văn bản chỉ được dùng làm căn cứ trả lời sau khi hoàn tất đủ 5 bước: chờ xử lý, trích xuất, chia đoạn, lập chỉ mục và hoàn tất.</p>
+    </div>
+  </div>
+
+  <div id="adminBox">
+    <div class="stats" id="stats"></div>
+
+    <div class="adm">
+      <div class="left">
+        <form id="uploadForm" class="card form-card" novalidate aria-labelledby="tailen">
+          <h2 id="tailen">Tải văn bản mới</h2>
+          <p class="muted" style="font-size:14px;margin-top:2px">Tệp sẽ được trích xuất, chia đoạn và lập chỉ mục tự động.</p>
+
+          <div id="dropZone" class="drop">
+            <i data-i="file-up" data-s="xl"></i>
+            <p>Kéo thả tệp văn bản vào đây</p>
+            <span class="hint" id="fileHint">Hỗ trợ PDF, DOCX, TXT, MD.</span>
+            <button type="button" class="btn sm" id="pickBtn" style="margin-top:12px">Chọn tệp từ máy</button>
+          </div>
+          <div id="fileChip" class="fchip" hidden>
+            <span class="ico"><i data-i="file-text" data-s="lg"></i></span>
+            <div class="tx"><b id="fcName"></b><small id="fcSize"></small></div>
+            <button type="button" class="btn ghost icon" id="fcClear" aria-label="Bỏ tệp đã chọn"><i data-i="x"></i></button>
+          </div>
+          <input id="file" name="file" type="file" accept=".pdf,.docx,.txt,.md" class="sr-only" tabindex="-1" aria-label="Tệp văn bản">
+          <p class="hint" id="detectNote" hidden style="margin-top:8px" aria-live="polite"></p>
+          <p class="err" id="fileErr" role="alert" hidden style="margin-top:6px"></p>
+
+          <div class="form-grid" style="margin-top:16px">{{ fields('u_') }}</div>
+          <div class="form-foot">
+            <p class="err" id="uploadErr" role="alert" hidden></p>
+            <button type="button" class="btn ghost lg" id="uploadReset">Làm lại</button>
+            <button class="btn primary lg" id="uploadBtn" type="submit"><i data-i="file-up"></i><span>Tải lên và lập chỉ mục</span></button>
+          </div>
+        </form>
+      </div>
+
+      <section class="card track" aria-labelledby="theodoi">
+        <div class="track-head">
+          <div><h2 id="theodoi">Theo dõi xử lý</h2><p id="liveNote"></p></div>
+          <div class="seg" role="tablist" aria-label="Lọc theo trạng thái" id="seg"></div>
+        </div>
+        <div class="track-body" id="adminState" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="replaceInput" accept=".pdf,.docx,.txt,.md" hidden>
+
+<dialog id="editDlg" class="wide">
+  <form id="editForm" class="dbox">
+    <h3>Cập nhật thông tin văn bản</h3>
+    <div class="form-grid" style="margin-top:16px">{{ fields('e_') }}</div>
+    <p class="err" id="editErr" role="alert" hidden style="margin-top:12px"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn lg" id="editCancel">Hủy</button>
+      <button type="submit" class="btn primary lg">Lưu</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="errDlg">
+  <form method="dialog" class="dbox"><h3 id="errTitle">Chi tiết</h3><p id="errMsg"></p><div class="dlg-actions"><button class="btn lg">Đóng</button></div></form>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="/static/admin.js"></script>{% endblock %}

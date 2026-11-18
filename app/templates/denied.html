@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Không có quyền truy cập · CampusGuide AI{% endblock %}
+{% block content %}
+<div class="wrap page-in">
+  <div class="empty-state" style="margin-top:48px;max-width:560px;margin-inline:auto">
+    <span class="ico"><i data-i="shield-check" data-s="lg"></i></span>
+    <h3>Bạn chưa có quyền vào mục này</h3>
+    <p>{% if denied == 'admin' %}Chỉ quản trị viên mới vào được mục Quản lý tài khoản.{% else %}Mục Quản trị dữ liệu chỉ mở cho tài khoản được quản trị viên cấp quyền. Hãy liên hệ quản trị viên nếu bạn cần quyền này.{% endif %}</p>
+    <div style="margin-top:20px"><a class="btn primary lg" href="/">Về trang Hỏi đáp</a></div>
+  </div>
+</div>
+{% endblock %}

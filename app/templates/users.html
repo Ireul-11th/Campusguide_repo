@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Quản lý tài khoản · CampusGuide AI{% endblock %}
+{% block content %}
+<div class="wrap wide page-in">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Quản lý tài khoản</p>
+      <h1>Người dùng và phân quyền</h1>
+      <p class="d">Thêm, sửa, khóa hoặc xóa tài khoản, và cấp quyền Quản trị dữ liệu cho người dùng. Mỗi tài khoản có lịch sử hỏi đáp riêng.</p>
+    </div>
+  </div>
+
+  <div class="stats" id="uStats"></div>
+
+  <section class="card" style="margin-top:20px" aria-labelledby="dsTk">
+    <div class="track-head">
+      <h2 id="dsTk" class="sr-only">Danh sách tài khoản</h2>
+      <div class="search-box" style="flex:1;min-width:200px;max-width:360px">
+        <i data-i="search"></i><label for="uSearch" class="sr-only">Tìm tài khoản</label>
+        <input id="uSearch" type="search" placeholder="Tìm theo tên đăng nhập hoặc họ tên">
+      </div>
+      <button type="button" class="btn primary lg" id="uNew"><i data-i="user-plus"></i>Thêm tài khoản</button>
+    </div>
+    <div class="track-body" id="uState" aria-live="polite"></div>
+  </section>
+</div>
+
+<dialog id="uDlg" class="wide">
+  <form id="uForm" class="dbox" autocomplete="off" novalidate>
+    <h3 id="uTitle">Thêm tài khoản</h3>
+    <div class="form-grid" style="margin-top:16px">
+      <div class="field"><label for="f_user">Tên đăng nhập <span class="req">*</span></label><input id="f_user" maxlength="32" autocapitalize="off" spellcheck="false"></div>
+      <div class="field"><label for="f_name">Họ và tên</label><input id="f_name" maxlength="80"></div>
+      <div class="field span2"><label for="f_pw" id="f_pw_l">Mật khẩu <span class="req">*</span></label><input id="f_pw" type="password" autocomplete="new-password">
+        <span class="hint" id="f_pw_h">Tối thiểu 8 ký tự, gồm cả chữ và số.</span></div>
+      <div class="field"><label for="f_role">Vai trò</label>
+        <select id="f_role"><option value="user">Người dùng</option><option value="admin">Quản trị viên</option></select></div>
+      <div class="field"><label>&nbsp;</label>
+        <label class="chk"><input type="checkbox" id="f_cmd"> Cho phép Quản trị dữ liệu</label></div>
+      <div class="field span2"><label class="chk"><input type="checkbox" id="f_active" checked> Tài khoản đang hoạt động</label>
+        <span class="hint">Quản trị viên luôn có quyền Quản trị dữ liệu. Khóa tài khoản sẽ đăng xuất người đó ngay.</span></div>
+    </div>
+    <p class="err" id="uErr" role="alert" hidden style="margin-top:12px"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn lg" id="uCancel">Hủy</button>
+      <button type="submit" class="btn primary lg" id="uSave">Lưu</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+{% block scripts %}<script src="/static/users.js"></script>{% endblock %}

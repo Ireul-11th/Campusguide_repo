@@ -1,0 +1,12 @@
+# Các thư viện tùy chọn. Cài khi cần bật tính năng tương ứng trong file .env
+
+# Embedding ngữ nghĩa (EMBEDDING_MODEL) và rerank (RERANK_MODEL). Nặng, kéo theo PyTorch.
+sentence-transformers>=3.0
+
+# Kho vector Chroma (VECTOR_STORE=chroma)
+chromadb>=0.5
+
+# OCR cho PDF scan (OCR=1). Cần cài thêm chương trình Tesseract và gói tiếng Việt (xem Bước 6 trong HUONG_DAN_KIEM_TRA.md)
+pypdfium2>=4.30
+pytesseract>=0.3.10
+pillow>=10.0

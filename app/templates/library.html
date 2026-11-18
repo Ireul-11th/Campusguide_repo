@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Thư viện văn bản · CampusGuide AI{% endblock %}
+{% block content %}
+<div class="wrap page-in">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Thư viện văn bản</p>
+      <h1>Văn bản chính thức làm căn cứ trả lời</h1>
+      <p class="d">Tra cứu toàn bộ quy chế, quy định, hướng dẫn và thông báo mà CampusGuide dùng để trả lời. Mỗi văn bản hiển thị tình trạng hiệu lực và vị trí từng Điều, Khoản.</p>
+    </div>
+  </div>
+
+  <div class="lib">
+    <aside aria-label="Bộ lọc">
+      <div class="field">
+        <label for="fSearch">Tìm theo tên, số hiệu, nội dung</label>
+        <div class="search-box"><i data-i="search"></i><input id="fSearch" type="search" placeholder="vd: học bổng, 1205/QĐ"></div>
+      </div>
+      <fieldset class="field" style="border:0;padding:0;min-width:0">
+        <legend>Loại văn bản</legend>
+        <div class="types" id="fTypes"></div>
+      </fieldset>
+      <div class="two">
+        <div class="field"><label for="fYear">Năm ban hành</label><select id="fYear"><option value="">Tất cả các năm</option></select></div>
+        <div class="field"><label for="fValid">Tình trạng hiệu lực</label>
+          <select id="fValid"><option value="">Tất cả</option>{% for k, v in validity.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+      </div>
+      <button type="button" class="btn ghost sm" id="fClear" hidden style="align-self:flex-start;color:var(--muted-fg)"><i data-i="filter-x"></i>Xóa bộ lọc</button>
+    </aside>
+
+    <section aria-labelledby="ketqua" style="min-width:0">
+      <div class="lib-top">
+        <h2 id="ketqua" class="muted" style="font-family:var(--sans);font-size:14px;font-weight:400" aria-live="polite">Đang tải…</h2>
+        <div class="field sel"><label for="fSort" class="sr-only">Sắp xếp</label>
+          <select id="fSort">
+            <option value="moi">Mới ban hành trước</option>
+            <option value="cu">Cũ ban hành trước</option>
+            <option value="ten">Theo tên A–Z</option>
+          </select></div>
+      </div>
+      <div id="libBody" style="margin-top:16px"></div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/library.js"></script>{% endblock %}

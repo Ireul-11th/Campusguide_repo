@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Hỏi đáp quy chế · CampusGuide AI{% endblock %}
+{% macro hist_panel(sfx) %}
+  <div class="hist-top">
+    <button type="button" class="btn primary lg wide js-new"><i data-i="plus"></i>Cuộc hỏi đáp mới</button>
+    <div class="search-box">
+      <label for="hs{{ sfx }}" class="sr-only">Tìm trong lịch sử hỏi đáp</label>
+      <i data-i="search" data-s="sm"></i>
+      <input id="hs{{ sfx }}" type="search" class="js-hsearch" placeholder="Tìm trong lịch sử…" style="height:36px">
+    </div>
+  </div>
+  <nav class="hist-list js-hlist" aria-label="Lịch sử hỏi đáp"></nav>
+  <p class="hist-foot">Lịch sử gắn với trình duyệt này.</p>
+{% endmacro %}
+{% block content %}
+<div class="chat">
+  <aside class="hist" aria-label="Lịch sử hỏi đáp">{{ hist_panel('d') }}</aside>
+
+  <section class="convo" aria-label="Hỏi đáp AI">
+    <div class="convo-bar">
+      <button type="button" class="btn ghost sm only-narrow" id="histBtn" aria-label="Mở lịch sử hỏi đáp"><i data-i="history"></i><span>Lịch sử</span></button>
+      <p class="ttl" id="convTitle">Cuộc hỏi đáp mới</p>
+      <button type="button" class="btn sm" id="newChat" hidden><i data-i="plus"></i><span>Mới</span></button>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="composer-wrap">
+      <form class="composer" id="composer">
+        <div class="box">
+          <label for="q" class="l" id="qLabel">Câu hỏi của bạn về quy chế, học vụ</label>
+          <div class="row">
+            <textarea id="q" rows="1" maxlength="1000" aria-describedby="qHelp" placeholder="Ví dụ: Điểm rèn luyện bao nhiêu thì được xét học bổng?"></textarea>
+            <button class="send" id="sendBtn" type="submit" aria-label="Gửi câu hỏi" disabled><i data-i="arrow-up"></i></button>
+          </div>
+        </div>
+        <div class="note" id="qHelp">
+          <span><kbd>Enter</kbd> để gửi · <kbd>Shift + Enter</kbd> xuống dòng</span>
+          <span class="tnum" id="counter">0/1000</span>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet left" id="histSheet" aria-label="Lịch sử hỏi đáp" aria-hidden="true">
+  <div class="sheet-head" style="padding-right:12px"><div><h2>Lịch sử hỏi đáp</h2></div><button type="button" class="btn ghost icon" data-close aria-label="Đóng"><i data-i="x"></i></button></div>
+  <div class="hist-body">{{ hist_panel('m') }}</div>
+</aside>
+<aside class="sheet right" id="srcSheet" role="dialog" aria-modal="true" aria-labelledby="srcTitle" aria-hidden="true">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head">
+    <div><p class="eyebrow">Nguồn trích dẫn</p><h2 id="srcTitle"></h2><p id="srcDesc"></p></div>
+    <button type="button" class="btn ghost icon" data-close aria-label="Đóng"><i data-i="x"></i></button>
+  </div>
+  <div class="tabs" id="srcTabs" role="tablist" aria-label="Chọn nguồn" hidden></div>
+  <div class="sheet-body" id="srcBody"></div>
+  <div class="sheet-foot" id="srcFoot" hidden></div>
+</aside>
+{% endblock %}
+{% block scripts %}<script src="/static/chat.js"></script>{% endblock %}

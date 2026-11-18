@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Đăng nhập · CampusGuide AI{% endblock %}
+{% block content %}
+<div class="wrap page-in">
+  <div class="auth">
+    <p class="eyebrow">Tài khoản</p>
+    <h1 id="authTitle">Đăng nhập để tra cứu quy chế</h1>
+    <p class="d" style="margin-top:8px;color:var(--muted-fg)">Mỗi tài khoản có lịch sử hỏi đáp riêng, chỉ bạn xem được.</p>
+
+    <div class="seg auth-tabs" role="tablist" aria-label="Đăng nhập hoặc đăng ký">
+      <button type="button" role="tab" id="tabLogin" aria-selected="true" class="on">Đăng nhập</button>
+      <button type="button" role="tab" id="tabReg" aria-selected="false">Đăng ký</button>
+    </div>
+
+    <form id="loginForm" class="card auth-card" novalidate>
+      <div class="field"><label for="l_user">Tên đăng nhập</label><input id="l_user" autocomplete="username" autocapitalize="off" spellcheck="false" required></div>
+      <div class="field"><label for="l_pw">Mật khẩu</label><input id="l_pw" type="password" autocomplete="current-password" required></div>
+      <p class="err" id="loginErr" role="alert" hidden></p>
+      <button class="btn primary lg wide" type="submit" id="loginBtn">Đăng nhập</button>
+    </form>
+
+    <form id="regForm" class="card auth-card" novalidate hidden>
+      <div class="field"><label for="r_name">Họ và tên</label><input id="r_name" autocomplete="name" maxlength="80" placeholder="Nguyễn Văn A"></div>
+      <div class="field"><label for="r_user">Tên đăng nhập <span class="req">*</span></label><input id="r_user" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="32" required>
+        <span class="hint">3–32 ký tự: chữ thường không dấu, số, dấu chấm hoặc gạch dưới.</span></div>
+      <div class="field"><label for="r_pw">Mật khẩu <span class="req">*</span></label><input id="r_pw" type="password" autocomplete="new-password" required>
+        <span class="hint">Tối thiểu 8 ký tự, gồm cả chữ và số.</span></div>
+      <div class="field"><label for="r_pw2">Nhập lại mật khẩu <span class="req">*</span></label><input id="r_pw2" type="password" autocomplete="new-password" required></div>
+      <p class="err" id="regErr" role="alert" hidden></p>
+      <button class="btn primary lg wide" type="submit" id="regBtn">Tạo tài khoản</button>
+      <p class="hint" style="text-align:center">Tài khoản tự đăng ký chỉ có quyền hỏi đáp và xem thư viện.</p>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.NEXT = {{ next | tojson }};</script>
+<script src="/static/login.js"></script>
+{% endblock %}

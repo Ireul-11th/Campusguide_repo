@@ -1,9 +1,11 @@
 """Luồng hỏi đáp: viết lại câu hỏi nối tiếp -> truy xuất -> LLM -> tách trạng thái."""
 import os
 
+import query
+
 from .. import config
 from ..constants import VALIDITY
-from . import extractive, llm
+from . import extractive, lessons, llm
 from .retrieval import content_tokens, index
 
 NO_INFO = "KHONG_CO_THONG_TIN"
@@ -95,11 +97,12 @@ def ask(question: str, history: list[dict]) -> dict:
         return {"status": "empty_index", "answer": "", "sources": [], "warnings": [], "query": question}
 
     query = _standalone_query(question, history)
-    found = index.search(query)
+    query, extra = lessons.prepare(query, index.chunks)
+    found = index.search(query, extra=extra)
     if not found:
         return {"status": "no_basis", "answer": "", "sources": [], "warnings": [], "query": query}
 
-    q_terms = set(content_tokens(query))
+    q_terms = set(content_tokens(f"{query} {extra}"))
     sources = [_source_dict(i, c, q_terms) for i, c in enumerate(found, start=1)]
     warnings: list[str] = []
 
@@ -121,7 +124,7 @@ def ask(question: str, history: list[dict]) -> dict:
     context = "\n\n".join(_context_block(s) for s in sources)
     user = f"CÁC ĐOẠN TRÍCH:\n{context}\n\nCÂU HỎI: {query}"
     try:
-        answer = extractive.answer(query, sources) if llm.is_extractive() else llm.generate(SYSTEM, user)
+        answer = extractive.answer(query, sources, extra) if llm.is_extractive() else llm.generate(SYSTEM, user)
     except llm.LLMError as e:
         return {
             "status": "llm_error",

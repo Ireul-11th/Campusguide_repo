@@ -58,7 +58,7 @@ def _is_boilerplate(ln: str) -> bool:
         return True
     if re.match(r"^[^,]{2,25},\s*ngày\s+\d", ln):          # "Đà Nẵng, ngày 12 tháng 8 năm 2024"
         return True
-    return bool(re.match(r"(?i)^(căn cứ|xét đề nghị|nơi nhận|số\s*:|cộng hòa|độc lập|về việc|v/v)", ln)) or "CỘNG HÒA XÃ HỘI" in ln
+    return bool(re.match(r"(?i)^(căn cứ|xét đề nghị|nơi nhận|số\s*:|cộng hòa|độc lập|về việc|v/v|\((?:đây là|lưu ý|ghi chú|chú thích))", ln)) or "CỘNG HÒA XÃ HỘI" in ln
 
 
 def _units(src: dict, si: int) -> list[dict]:
@@ -91,7 +91,7 @@ def _units(src: dict, si: int) -> list[dict]:
     return units
 
 
-def answer(query: str, sources: list[dict]) -> str:
+def answer(query: str, sources: list[dict], extra: str = "") -> str:
     """Trả về câu trả lời (Markdown, có [n]) hoặc NO_INFO nếu không đủ căn cứ."""
     units: list[dict] = []
     per_src: list[list[dict]] = []
@@ -103,6 +103,7 @@ def answer(query: str, sources: list[dict]) -> str:
         return NO_INFO
 
     q_words, q_pairs = _content(query) - ASK_WORDS, _pairs(query)
+    x_words = _content(extra) - q_words - ASK_WORDS        # từ bổ sung (số, đồng nghĩa): chỉ giúp tăng điểm
     if not q_words:
         return NO_INFO
     df: dict[str, int] = {}
@@ -111,8 +112,8 @@ def answer(query: str, sources: list[dict]) -> str:
         for w in ws:
             df[w] = df.get(w, 0) + 1
     n = len(units)
-    idf = {w: math.log(1 + n / (1 + df.get(w, 0))) for w in q_words}
-    den = sum(idf.values()) or 1.0
+    idf = {w: math.log(1 + n / (1 + df.get(w, 0))) for w in q_words | x_words}
+    den = sum(idf[w] for w in q_words) or 1.0
     # Từ khóa của câu hỏi không xuất hiện ở bất kỳ đâu trong các đoạn tìm được (vd. "cảnh cáo"): tài liệu không nói về nó
     titles = set().union(*(_content(f"{x['article_title']} {x['doc_title']}") for x in sources))
     gone = [w for w in q_words if w not in df and w not in titles]
@@ -122,7 +123,7 @@ def answer(query: str, sources: list[dict]) -> str:
 
     for u, ws in zip(units, uw):
         s = sources[u["si"]]
-        got = sum(idf[w] for w in q_words if w in ws)
+        got = sum(idf[w] for w in q_words if w in ws) + 0.8 * sum(idf[w] for w in x_words if w in ws)
         lead = per_src[u["si"]][u["parent"]]["text"] if u["parent"] is not None else ""
         ctx = _content(f"{lead} {s['article_title']} {s['doc_title']}") - ws          # tiêu đề Điều, ý dẫn của Khoản
         got += 0.6 * sum(idf[w] for w in q_words if w in ctx)

@@ -16,7 +16,7 @@ STOP = {
     "là", "và", "của", "các", "có", "được", "cho", "những", "một", "trong", "thì", "gì", "nào",
     "như", "thế", "khi", "để", "với", "bị", "hay", "này", "đó", "em", "tôi", "mình", "không",
     "bao", "nhiêu", "sao", "ra", "thế_nào", "điều", "hỏi", "cần", "phải", "muốn", "về", "ở",
-    "nếu", "thì", "làm", "bạn", "cho_biết", "xin",
+    "nếu", "thì", "làm", "bạn", "cho_biết", "xin", "đúng", "sai",
 }
 RE_REF = re.compile(r"[Đđ]iều\s+(\d+)")
 
@@ -125,7 +125,7 @@ class Index:
             return None
         return None
 
-    def search(self, query: str, k: int | None = None) -> list[dict]:
+    def search(self, query: str, k: int | None = None, extra: str = "") -> list[dict]:
         k = k or config.TOP_K
         with self._lock:
             chunks, bm25, sets, emb = self.chunks, self.bm25, self.sets, self.emb
@@ -136,7 +136,7 @@ class Index:
         q_content = set(content_tokens(query))
         if not q_content:
             return []
-        scores = np.asarray(bm25.get_scores(bm25_tokens(query)), dtype=float)
+        scores = np.asarray(bm25.get_scores(bm25_tokens(f"{query} {extra}".strip())), dtype=float)
         sims = self._semantic_sims(query, chunks, emb, use_chroma)
 
         n = len(chunks)
